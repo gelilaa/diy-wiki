@@ -55,6 +55,7 @@ app.get('/api/page/:slug', async (req, res) => {
     res.json({ status: 'error', message: 'Page does not exist.' });
     // return jsonError(res, 'Page does not exist.');
   }
+ 
 });
 
 
@@ -84,8 +85,23 @@ app.post('/api/page/:slug', async (req, res) => {
 //  success response: {status:'ok', pages: ['fileName', 'otherFileName']}
 //  failure response: no failure response
 app.get('/api/pages/all', async (req, res) => {
+  const fileName = await readDir(DATA_DIR);
 
+try{
+   const page = fileName.map(file=>path.parse(file).name);
+   res.json({
+     pages: page,
+     status: 'ok',
+    
+   });
+
+}catch{
+res.json({status: 'error'});
+
+}
+// console.log('working');
 });
+
 
 
 // GET: '/api/tags/all'
