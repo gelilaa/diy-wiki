@@ -16,6 +16,8 @@ const bodyParser = require('body-parser');
 
 // require local dependencies
 const logger = require('./middleware/logger');
+const { add } = require('date-fns');
+const { json } = require('body-parser');
 
 // declare local constants and helper functions
 const PORT = process.env.PORT || 5000;
@@ -25,6 +27,7 @@ const slugToPath = (slug) => {
   const filename = `${slug}.md`;
   return path.join(DATA_DIR, filename);
 };
+
 
 // initialize express app
 const app = express();
@@ -68,12 +71,14 @@ app.post('/api/page/:slug', async (req, res) => {
   const filename = slugToPath(req.params.slug);
   try {
     const file = req.body.body;
+    //  const bodyValue = req.body.value;
     await writeFile(filename,file),res.json({
       status:'ok'
     });
 
   } catch (e) {
     res.json({status: 'error', message:'Could not write page'});
+   // console.log('error')
 
   }
 });
@@ -88,7 +93,11 @@ app.get('/api/pages/all', async (req, res) => {
   const fileName = await readDir(DATA_DIR);
 
 try{
-   const page = fileName.map(file=>path.parse(file).name);
+   const page = fileName.map(file=>{
+     //https://www.geeksforgeeks.org/node-js-path-parse-method/
+     //https://nodejs.org/api/path.html#path_path_parse_path  
+     return path.parse(file).name;
+   });
    res.json({
      pages: page,
      status: 'ok',
@@ -111,7 +120,17 @@ res.json({status: 'error'});
 //  success response: {status:'ok', tags: ['tagName', 'otherTagName']}
 //  failure response: no failure response
 app.get('/api/tags/all', async (req, res) => {
-
+  const fileName= await readDir(DATA_DIR);
+  let pages = fileName.map(page=>{return path.parse(page).name})
+ pages.forEach(tag => {
+     return tag.match(TAG_RE);
+  
+ });
+ 
+pages.push('default')
+ 
+ ; res.json({status:'ok', tags:pages})
+   
 });
 
 
