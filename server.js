@@ -140,6 +140,14 @@ pages.push('default')
 //  success response: {status:'ok', tag: 'tagName', pages: ['tagName', 'otherTagName']}
 //  failure response: no failure response
 app.get('/api/tags/:tag', async (req, res) => {
+  const tagName =req.params.tag;
+ // console.log(tagName)
+  let file = await readDir(DATA_DIR,'utf-8');
+  let pages = file.map(page=>{return path.parse(page).name})
+       pages.forEach(tag => {tag.match(TAG_RE);})
+
+ const names = pages.filter(page=>page!== tagName);
+ res.json({status:'ok',tag: tagName, pages:names})
 
 });
 
